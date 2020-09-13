@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -12,7 +13,7 @@ type problem struct {
 	a string
 }
 
-func CSVRead(f *os.File) error {
+func CSVRead(f *os.File, timeLimit int) error {
 	correct := 0
 	r := csv.NewReader(f)
 	lines, err := r.ReadAll()
@@ -20,8 +21,9 @@ func CSVRead(f *os.File) error {
 		return err
 	}
 	problems := parseLines(lines)
-	timer := time.NewTimer(30 * time.Second)
-	problemLoop:
+
+	timer := time.NewTimer(time.Duration(timeLimit) * time.Second)
+problemLoop:
 	for i, problem := range problems {
 		fmt.Printf("#Problem%d: %s = ", i+1, problem.q)
 		answerCh := make(chan string)
@@ -47,7 +49,7 @@ func CSVRead(f *os.File) error {
 func parseLines(lines [][]string) []problem {
 	res := make([]problem, len(lines))
 	for i, line := range lines {
-		res[i] = problem{q: line[0], a: line[1]}
+		res[i] = problem{q: line[0], a: strings.TrimSpace(line[1])}
 	}
 	return res
 }
